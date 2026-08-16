@@ -14,11 +14,19 @@ A clean Garuda Linux GRUB customization that keeps the original Garuda theme des
 
 ## One-command install
 
-Once GitHub Pages is enabled for this repository, install with:
+### GitHub Pages
 
 ```bash
 curl -fsSL https://lover-of-darkness.github.io/Devil-Boot-Loader-Theme/install.sh | sudo bash
 ```
+
+### GitHub Raw
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Loverof-Darkness/Devil-Boot-Loader-Theme/main/install.sh | sudo bash
+```
+
+Both commands install the same theme. GitHub Pages is the recommended command because it is shorter and easier to remember.
 
 The installer automatically detects the installed Garuda GRUB theme, clones it, replaces the background, makes the outer menu transparent, and regenerates GRUB.
 
