@@ -15,12 +15,28 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
+# Ask before overwriting an existing installation.
+if [[ -d "$THEME_DIR" ]] || grep -qF 'GRUB_THEME="/boot/grub/themes/garuda-transparent-menu/theme.txt"' /etc/default/grub 2>/dev/null; then
+    echo
+    echo "Garuda Transparent GRUB Theme is already installed."
+    read -r -p "Do you want to reinstall/overwrite it? [y/N]: " answer
+    case "$answer" in
+        [yY]|[yY][eE][sS])
+            echo "Reinstalling..."
+            ;;
+        *)
+            echo "Installation cancelled."
+            exit 0
+            ;;
+    esac
+fi
+
 download() {
     local url="$1" out="$2"
     if command -v curl >/dev/null 2>&1; then
         curl -fL --retry 3 --connect-timeout 10 "$url" -o "$out"
     elif command -v wget >/dev/null 2>&1; then
-        wget -q --tries=3 -O "$out" "$url"
+        wget -q --tries=3 -O "$out" "$out"
     else
         echo "ERROR: curl or wget is required."
         exit 1
