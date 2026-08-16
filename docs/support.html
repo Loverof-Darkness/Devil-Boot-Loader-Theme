@@ -5,51 +5,39 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Support — Devil Boot Loader Theme</title>
 <style>
-:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 0,#25122b 0,#08070b 45%);color:#eee;font-family:system-ui,-apple-system,sans-serif;display:grid;place-items:center;min-height:100vh;padding:24px}.wrap{width:min(900px,100%)}main{background:#111018eF;border:1px solid #3b2b45;border-radius:22px;padding:42px;text-align:center;box-shadow:0 20px 80px #0009}h1{margin:0 0 10px;font-size:2.5rem}h2{font-size:1.15rem;margin:34px 0 16px}p{color:#bdb7c5;line-height:1.6}.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:28px}.card{background:#191520;border:1px solid #4a3455;border-radius:16px;padding:26px}.qr{width:220px;height:220px;margin:auto;border-radius:12px;background:#242029;display:grid;place-items:center;border:1px dashed #74577f;color:#9d91a4;font-size:.9rem}.qr span{padding:20px}.upi{font-size:1.65rem;font-weight:750;letter-spacing:2px;margin:14px 0;padding:16px;background:#100d14;border:1px solid #5a3c68;border-radius:12px;word-break:break-all}.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.btn{border:0;border-radius:9px;padding:12px 20px;background:#ff718f;color:#160910;font-weight:750;cursor:pointer;font-size:1rem}.btn.secondary{background:#29212e;color:#eee;border:1px solid #4b3854}.amounts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.amount{border:1px solid #51385d;background:#191520;color:#eee;border-radius:9px;padding:10px 18px;cursor:pointer}.amount:hover,.btn.secondary:hover{border-color:#ff718f}.uses{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}.use{background:#15121a;border-radius:10px;padding:14px 8px;color:#c9c1ce;font-size:.9rem}.note{font-size:.88rem;color:#8f8996;margin-top:24px}a{color:#ff718f;text-decoration:none}.thanks{font-size:1.05rem;color:#ddd}
-@media(max-width:680px){main{padding:26px 18px}.grid{grid-template-columns:1fr}.uses{grid-template-columns:1fr 1fr}h1{font-size:2rem}}
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#08070b;color:#eee;font-family:system-ui,-apple-system,sans-serif;display:grid;place-items:center;min-height:100vh;padding:24px}main{width:min(680px,100%);background:#111018;border:1px solid #3b2b45;border-radius:18px;padding:42px;text-align:center;box-shadow:0 20px 70px #0008}h1{margin:0 0 12px;font-size:2.3rem}p{color:#bdb7c5;line-height:1.6}.qr{display:block;width:min(420px,100%);height:auto;margin:28px auto 20px;border-radius:12px;background:#fff}.copy{border:0;border-radius:9px;padding:12px 22px;background:#ff718f;color:#160910;font-weight:700;cursor:pointer;font-size:1rem}.upi{font-size:1.1rem;font-weight:700;margin:18px 0;padding:12px;background:#191520;border:1px solid #5a3c68;border-radius:10px}.amounts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:22px 0}.amounts button{border:1px solid #5a3c68;background:#191520;color:#eee;border-radius:9px;padding:10px 18px;cursor:pointer}.amounts button:hover{border-color:#ff718f}.note{font-size:.88rem;color:#8f8996;margin-top:22px}a{color:#ff718f;text-decoration:none}
 </style>
 </head>
 <body>
-<div class="wrap"><main>
+<main>
 <h1>Support Devil Boot Loader</h1>
-<p class="thanks">If this project helped you, your support helps keep development, testing and new themes free for everyone.</p>
+<p>If this project helped you, you can optionally support its development.</p>
 
-<div class="grid">
-<section class="card">
-<h2>Scan to Pay</h2>
-<div class="qr"><span>Your UPI QR code will appear here.<br><br>Replace <code>docs/upi-qr.png</code> in the repository with your actual QR image.</span></div>
-<p class="note">Always verify the recipient name and payment details in your UPI app before paying.</p>
-</section>
+<img class="qr" src="./upi-qr.png" alt="UPI payment QR code">
 
-<section class="card">
-<h2>Pay with UPI</h2>
 <div class="upi" id="upi">788888988</div>
-<div class="actions"><button class="btn" id="copy" onclick="copyUPI()">Copy UPI / Payment ID</button></div>
-<p class="note">Enter the payment ID in your preferred UPI app and verify the displayed recipient details before completing payment.</p>
-<h2>Choose an amount</h2>
-<div class="amounts">
-<button class="amount" onclick="setAmount(50)">₹50</button>
-<button class="amount" onclick="setAmount(100)">₹100</button>
-<button class="amount" onclick="setAmount(250)">₹250</button>
-<button class="amount" onclick="setAmount(500)">₹500</button>
-</div>
-</section>
+<button class="copy" onclick="copyUPI(this)">Copy UPI / Payment ID</button>
+
+<div class="amounts" aria-label="Suggested support amounts">
+<button onclick="showAmount(50)">₹50</button>
+<button onclick="showAmount(100)">₹100</button>
+<button onclick="showAmount(250)">₹250</button>
+<button onclick="showAmount(500)">₹500</button>
 </div>
 
-<h2>Where your support goes</h2>
-<div class="uses">
-<div class="use">Development</div>
-<div class="use">Testing</div>
-<div class="use">New Themes</div>
-<div class="use">Maintenance</div>
-</div>
-
-<p class="note">Support is completely optional. The project remains free and open-source.</p>
-<p><a href="./">← Back to project</a> · <a href="https://github.com/Loverof-Darkness/Devil-Boot-Loader-Theme">GitHub Repository</a></p>
-</main></div>
+<p id="amount-note" class="note">Scan the QR code with your UPI app. Suggested amount buttons are only for guidance and do not initiate a payment.</p>
+<p class="note">Please verify the recipient details shown by your UPI app before completing any payment.</p>
+<p><a href="./">← Back to project</a></p>
+</main>
 <script>
-function copyUPI(){const b=document.getElementById('copy');navigator.clipboard.writeText(document.getElementById('upi').textContent.trim()).then(()=>{b.textContent='Copied ✓';setTimeout(()=>b.textContent='Copy UPI / Payment ID',1600)}).catch(()=>{b.textContent='Copy failed';setTimeout(()=>b.textContent='Copy UPI / Payment ID',1600)})}
-function setAmount(n){document.getElementById('upi').textContent='788888988';alert('Selected support amount: ₹'+n+'\nEnter the payment ID in your UPI app and enter ₹'+n+' as the amount. Verify the recipient before paying.')}
+function copyUPI(button){
+ navigator.clipboard.writeText(document.getElementById('upi').textContent.trim()).then(()=>{
+  const old=button.textContent;button.textContent='Copied';setTimeout(()=>button.textContent=old,1500)
+ })
+}
+function showAmount(amount){
+ document.getElementById('amount-note').textContent='Suggested support amount: ₹'+amount+'. Scan the QR code and enter this amount in your UPI app if you wish.'
+}
 </script>
 </body>
 </html>
