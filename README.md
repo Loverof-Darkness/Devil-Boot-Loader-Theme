@@ -1,182 +1,113 @@
-# Devil Boot Loader Theme
+# Devil Boot Loader Theme — Universal GRUB Branch
 
-A clean Garuda Linux GRUB customization that keeps the original Garuda theme design while making the main menu frame transparent and allowing a custom background.
+This branch is the **distro-independent GRUB version** of Devil Boot Loader Theme.
 
-## What it does
+It keeps the same project background and visual concept as the main branch, but it does **not** look specifically for Garuda's GRUB theme.
 
-- Preserves Garuda's original buttons and selected-item styling
-- Preserves fonts, icons, menu layout and spacing
-- Removes only the large outer `boot_menu` frame
-- Uses the project's custom Devil background
-- Creates a backup before changing `/etc/default/grub`
-- Does **not** run `pacman -Syu`
-- Asks before overwriting an existing installation
-- Supports easy uninstall/restore
+Instead, the installer detects the GRUB theme already installed on the user's Linux system, clones it, applies the project background, and removes only the large outer `boot_menu` frame so the menu becomes transparent.
 
-## One-command install
+## Supported target
 
-GitHub Pages is deployed from the **`docs/` folder** on the `main` branch.
+Any Linux distribution that uses **GRUB** and has an installed GRUB theme.
 
-```bash
-curl -fsSL https://lover-of-darkness.github.io/Devil-Boot-Loader-Theme/install.sh | sudo bash
-```
+Examples include Arch-based, Debian-based, Fedora-based and other distributions using GRUB.
 
-Fallback using GitHub Raw:
+This branch does **not** install GRUB itself and does not replace a distro's existing theme design.
+
+## One-command installation
+
+Use the universal branch directly from GitHub:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Loverof-Darkness/Devil-Boot-Loader-Theme/main/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/Loverof-Darkness/Devil-Boot-Loader-Theme/universal-grub/install.sh | sudo bash
 ```
 
-The Pages installer is located at `docs/install.sh`. It fetches the background directly from the repository, so the background image does not need to be duplicated inside `docs/`.
+The installer:
 
-If the theme is already installed, the installer asks:
+1. Detects `/boot/grub` or `/boot/grub2`.
+2. Reads the current `GRUB_THEME` from `/etc/default/grub`.
+3. Falls back to searching common GRUB theme directories when necessary.
+4. Clones the detected theme without modifying the original.
+5. Downloads the same project background from this branch.
+6. Replaces only the background image.
+7. Removes only `menu_pixmap_style` from `boot_menu` blocks.
+8. Leaves the theme's individual item and selected-item styling unchanged.
+9. Updates `GRUB_THEME` to the cloned theme.
+10. Regenerates GRUB using `update-grub`, `grub2-mkconfig`, or `grub-mkconfig`.
+
+## Reinstall behavior
+
+If the universal version is already installed, the installer asks:
 
 ```text
 Do you want to reinstall/overwrite it? [y/N]:
 ```
 
-Press `y` to reinstall or press Enter/`N` to cancel.
+- `y` / `Y` / `yes` → reinstall
+- Enter / `N` → cancel safely
 
-## GitHub Pages setup
+## Important
 
-In GitHub go to:
+This branch requires an **existing GRUB theme**. It intentionally preserves the distro's current theme instead of forcing Garuda-specific assets onto another Linux distribution.
 
-**Settings → Pages → Build and deployment**
+If no GRUB theme is detected, the installer stops and explains what is missing.
 
-Set:
+## Backup
+
+Before changing `/etc/default/grub`, the installer creates a timestamped backup under:
 
 ```text
-Source: Deploy from a branch
-Branch: main
+/var/backups/devil-boot-loader-TIMESTAMP/
+```
+
+## No system upgrade
+
+The installer does **not** run:
+
+```text
+pacman -Syu
+```
+
+and does not install unrelated packages.
+
+## Background
+
+The same project background is used as the main branch:
+
+```text
+ theme/devil-background.png
+```
+
+Replace that file on this branch with another image of the same filename if you want a different wallpaper.
+
+Recommended image: **1920×1080 PNG**.
+
+## GitHub Pages
+
+The universal branch also contains a copy of the installer under `docs/install.sh`.
+
+To deploy this branch with GitHub Pages, use:
+
+```text
+Branch: universal-grub
 Folder: /docs
 ```
 
-Then save. The Pages installer URL is:
+Otherwise, the Raw GitHub command above is the simplest installation method.
 
-```text
-https://lover-of-darkness.github.io/Devil-Boot-Loader-Theme/install.sh
-```
+## Restore / uninstall
 
-## Uninstall
-
-Clone the repository or download `uninstall.sh`, then run:
+Use the repository's `uninstall.sh` from this branch after downloading/cloning the branch:
 
 ```bash
 sudo ./uninstall.sh
 ```
 
-The installer restores the latest backup it created.
+The uninstall script restores the latest backup created by this installer.
 
-## Custom background
+## Support
 
-Replace:
-
-```text
-theme/devil-background.png
-```
-
-with your own image while keeping the exact filename.
-
-Recommended:
-
-```text
-1920x1080 PNG
-```
-
-The next installation will automatically use the new image.
-
-## Requirements
-
-- Garuda Linux
-- Installed Garuda GRUB theme
-- UEFI/GRUB setup
-- `curl` or `wget`
-- Python 3
-
-## How it works
-
-The installer detects the currently configured Garuda theme and clones it to:
-
-```text
-/boot/grub/themes/garuda-transparent-menu/
-```
-
-Then it:
-
-1. Downloads the custom background.
-2. Replaces only the theme's desktop background.
-3. Removes only `menu_pixmap_style` from the `boot_menu` block.
-4. Leaves `item_pixmap_style` and `selected_item_pixmap_style` unchanged.
-5. Points `GRUB_THEME` to the cloned theme.
-6. Runs `update-grub`.
-
-The original theme under `/usr/share/grub/themes/` is not modified.
-
-## Backup
-
-Before changing the configuration, a backup is created at:
-
-```text
-/var/backups/garuda-transparent-grub-TIMESTAMP/
-```
-
----
-
-# Support the Project
-
-Thank you for using **Devil Boot Loader Theme**.
-
-If this project is useful to you and you would like to support its development, you can optionally contribute through UPI.
-
-## UPI Support
-
-### UPI / Payment ID
-
-```text
-788888988
-```
-
-You can copy the payment ID and enter it in your UPI application. **Always verify the recipient details displayed by your UPI app before completing a payment.**
-
-### Scan & Pay
-
-The project's QR code is stored directly in the repository:
-
-**[Open / Scan the UPI QR Code](docs/upi-qr.png)**
-
-The QR image contains the payment information. Verify the recipient details shown by your UPI app before paying.
-
-## Suggested Support Amounts
-
-| Amount | Support type |
-|---:|---|
-| ₹50 | Coffee Support |
-| ₹100 | Developer Support |
-| ₹250 | Project Support |
-| ₹500 | Strong Support |
-
-These are only suggestions. Any voluntary support is appreciated.
-
-## Where Your Support Helps
-
-Your support can help with:
-
-- GRUB theme development
-- Testing on different Garuda/Linux systems
-- New backgrounds and visual improvements
-- Documentation
-- Maintenance and bug fixes
-- Future improvements to the project
-
-## Payment Safety
-
-Please **verify the recipient name and payment details displayed by your UPI application before completing a transaction**. Do not rely only on the payment ID or QR image displayed in this repository.
-
-## Thank You
-
-Every contribution helps keep **Devil Boot Loader Theme** maintained and freely available.
-
-**Thank you for supporting the project.**
+For project support information, see the support section at the bottom of the README on the main branch.
 
 ## License
 
