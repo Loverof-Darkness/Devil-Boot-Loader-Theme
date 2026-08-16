@@ -4,45 +4,54 @@ Thank you for using **Devil Boot Loader Theme**.
 
 If this project is useful to you and you would like to support its development, you can optionally contribute through UPI.
 
-## UPI Support
+## Scan & Pay
 
-**UPI / Payment ID:**
+### UPI QR Code
+
+Open the QR image below directly from the repository:
+
+**[Open / Scan the UPI QR Code](https://github.com/Loverof-Darkness/Devil-Boot-Loader-Theme/blob/main/docs/upi-qr.png)**
+
+> **Important:** Before completing any payment, scan the QR code with your UPI app and verify the recipient details shown by the app.
+
+## UPI Payment ID
 
 ```text
 788888988
 ```
 
-### Scan & Pay
+You can copy the payment ID above and enter it in your UPI application. Always verify the recipient details before paying.
 
-The QR code is available in the project's `docs/upi-qr.png` file and on the GitHub Pages support page.
+## Suggested Support
 
-**[Open Support Page](https://lover-of-darkness.github.io/Devil-Boot-Loader-Theme/support.html)**
+These are completely optional suggestions:
 
-Suggested support amounts:
+| Amount | Support type |
+|---:|---|
+| ₹50 | Coffee Support |
+| ₹100 | Developer Support |
+| ₹250 | Project Support |
+| ₹500 | Strong Support |
 
-- ₹50 — Coffee Support
-- ₹100 — Developer Support
-- ₹250 — Project Support
-- ₹500 — Strong Support
+Any voluntary contribution is appreciated.
 
-These are only suggested amounts; any voluntary support is appreciated.
-
-## Where support helps
+## Where Your Support Helps
 
 Your support can help with:
 
 - GRUB theme development
-- Testing on different Garuda/Linux setups
+- Testing on different Garuda/Linux systems
 - New backgrounds and visual improvements
 - Documentation
 - Maintenance and bug fixes
+- Future improvements to the project
 
-## Payment safety
+## Payment Safety
 
-Before completing a payment, always verify the recipient details displayed by your UPI application. Do not rely only on the number shown on this page or in a QR image.
+Please **verify the recipient name and payment details displayed by your UPI application before completing a transaction**. Do not rely only on the payment ID or QR image displayed in this repository.
 
-## Thank you
+## Thank You
 
-Every contribution helps keep the project maintained and freely available.
+Every contribution helps keep **Devil Boot Loader Theme** maintained and freely available.
 
-**Devil Boot Loader Theme**
+**Thank you for supporting the project.**
