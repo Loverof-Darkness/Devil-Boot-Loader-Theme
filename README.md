@@ -37,6 +37,18 @@ Do you want to reinstall/overwrite it? [y/N]:
 
 Press `y` to reinstall or press Enter/`N` to cancel.
 
+## Support the project
+
+If you like the project and want to support its development, see:
+
+**[SUPPORT.md](SUPPORT.md)**
+
+The support page contains the project's UPI payment information, QR code and suggested support amounts.
+
+You can also open the web support page:
+
+**[Support Page](https://lover-of-darkness.github.io/Devil-Boot-Loader-Theme/support.html)**
+
 ## GitHub Pages setup
 
 In GitHub go to:
