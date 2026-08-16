@@ -15,19 +15,13 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-# Ask before overwriting an existing installation.
 if [[ -d "$THEME_DIR" ]] || grep -qF 'GRUB_THEME="/boot/grub/themes/garuda-transparent-menu/theme.txt"' /etc/default/grub 2>/dev/null; then
     echo
     echo "Garuda Transparent GRUB Theme is already installed."
     read -r -p "Do you want to reinstall/overwrite it? [y/N]: " answer
     case "$answer" in
-        [yY]|[yY][eE][sS])
-            echo "Reinstalling..."
-            ;;
-        *)
-            echo "Installation cancelled."
-            exit 0
-            ;;
+        [yY]|[yY][eE][sS]) echo "Reinstalling..." ;;
+        *) echo "Installation cancelled."; exit 0 ;;
     esac
 fi
 
@@ -36,7 +30,7 @@ download() {
     if command -v curl >/dev/null 2>&1; then
         curl -fL --retry 3 --connect-timeout 10 "$url" -o "$out"
     elif command -v wget >/dev/null 2>&1; then
-        wget -q --tries=3 -O "$out" "$out"
+        wget -q --tries=3 -O "$out" "$url"
     else
         echo "ERROR: curl or wget is required."
         exit 1
@@ -57,10 +51,7 @@ if [[ -z "$CURRENT_THEME" || ! -f "$CURRENT_THEME" ]]; then
         /usr/share/grub/themes/garuda/theme.txt \
         /boot/grub/themes/garuda-dr460nized/theme.txt \
         /boot/grub/themes/garuda/theme.txt; do
-        if [[ -f "$candidate" ]]; then
-            CURRENT_THEME="$candidate"
-            break
-        fi
+        if [[ -f "$candidate" ]]; then CURRENT_THEME="$candidate"; break; fi
     done
 fi
 
@@ -76,12 +67,10 @@ rm -rf "$THEME_DIR"
 mkdir -p "$THEME_DIR"
 cp -a "$SOURCE_DIR"/. "$THEME_DIR"/
 
-# Repository contains the image as theme/devil-background.png.
 download "${REPO_BASE}/theme/devil-background.png" "$TMP/devil-background.png"
 
 THEME_FILE="$THEME_DIR/theme.txt"
 IMAGE_REF="$(sed -n 's/^[[:space:]]*desktop-image[[:space:]]*:[[:space:]]*"\([^" ]*\)".*$/\1/p' "$THEME_FILE" | head -n1)"
-
 if [[ -n "$IMAGE_REF" ]]; then
     cp -f "$TMP/devil-background.png" "$THEME_DIR/$(basename "$IMAGE_REF")"
 else
@@ -89,13 +78,10 @@ else
     sed -i '1i desktop-image: "devil-background.png"\n' "$THEME_FILE"
 fi
 
-# Remove ONLY the outer boot_menu frame. Keep Garuda item and selected-item styling.
 python3 - "$THEME_FILE" <<'PY'
 from pathlib import Path
 import re, sys
-p = Path(sys.argv[1])
-s = p.read_text()
-
+p=Path(sys.argv[1]); s=p.read_text()
 def find_blocks(text):
     result=[]; pos=0
     while True:
@@ -110,7 +96,6 @@ def find_blocks(text):
         if end is None: break
         result.append((start,end)); pos=end
     return result
-
 for start,end in reversed(find_blocks(s)):
     block=s[start:end]
     block=re.sub(r'(?m)^[ \t]*menu_pixmap_style[ \t]*=[^\n]*\n?','',block)
@@ -123,15 +108,10 @@ if grep -qE '^[[:space:]]*GRUB_THEME=' /etc/default/grub; then
 else
     printf '\nGRUB_THEME="/boot/grub/themes/garuda-transparent-menu/theme.txt"\n' >> /etc/default/grub
 fi
-
 sed -i 's|^[[:space:]]*GRUB_BACKGROUND=.*$|# GRUB_BACKGROUND managed by Garuda Transparent GRUB theme|' /etc/default/grub
 
 echo "Generating GRUB configuration..."
-if command -v update-grub >/dev/null 2>&1; then
-    update-grub
-else
-    grub-mkconfig -o /boot/grub/grub.cfg
-fi
+if command -v update-grub >/dev/null 2>&1; then update-grub; else grub-mkconfig -o /boot/grub/grub.cfg; fi
 
 echo
 echo "✓ Garuda Transparent GRUB Theme installed"
