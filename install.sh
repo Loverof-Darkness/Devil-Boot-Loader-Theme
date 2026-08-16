@@ -1,31 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ============================================================
 # Garuda Transparent GRUB Theme
-# One-command GitHub installer.
-#
-# The only repository-specific value is REPO_RAW below.
-# After uploading to GitHub, set it to:
-# https://raw.githubusercontent.com/OWNER/REPO/main
-# ============================================================
+# One-command installer.
 
-REPO_RAW="${REPO_RAW:-https://raw.githubusercontent.com/OWNER/REPO/main}"
+REPO_RAW="https://raw.githubusercontent.com/Loverof-Darkness/Devil-Boot-Loader-Theme/main"
 THEME_DIR="/boot/grub/themes/garuda-transparent-menu"
-THEME_NAME="garuda-transparent-menu"
 STAMP="$(date +%Y%m%d-%H%M%S)"
-BACKUP="/var/backups/${THEME_NAME}-${STAMP}"
+BACKUP="/var/backups/garuda-transparent-grub-${STAMP}"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
 if [[ $EUID -ne 0 ]]; then
-    echo "Please run this installer with sudo."
-    echo "Example:"
+    echo "Please run with sudo:"
     echo "  curl -fsSL ${REPO_RAW}/install.sh | sudo bash"
     exit 1
 fi
 
-download() {
+ download() {
     local url="$1" out="$2"
     if command -v curl >/dev/null 2>&1; then
         curl -fL --retry 3 --connect-timeout 10 "$url" -o "$out"
@@ -40,7 +32,6 @@ download() {
 mkdir -p "$BACKUP"
 cp -a /etc/default/grub "$BACKUP/grub.default"
 
-# Detect the currently configured Garuda theme.
 CURRENT_THEME=""
 if grep -qE '^[[:space:]]*GRUB_THEME=' /etc/default/grub; then
     CURRENT_THEME="$(sed -n 's/^[[:space:]]*GRUB_THEME[[:space:]]*=[[:space:]]*"\([^"]*\)".*$/\1/p' /etc/default/grub | head -n1)"
@@ -61,23 +52,18 @@ fi
 
 if [[ -z "$CURRENT_THEME" || ! -f "$CURRENT_THEME" ]]; then
     echo "ERROR: Could not find an installed Garuda GRUB theme."
-    echo "Install a Garuda GRUB theme first, then rerun this installer."
     exit 1
 fi
 
 SOURCE_DIR="$(dirname "$CURRENT_THEME")"
-echo "Detected Garuda theme:"
-echo "  $CURRENT_THEME"
+echo "Detected Garuda theme: $CURRENT_THEME"
 
-# Clone the complete installed Garuda theme.
 rm -rf "$THEME_DIR"
 mkdir -p "$THEME_DIR"
 cp -a "$SOURCE_DIR"/. "$THEME_DIR"/
 
-# Download repository background.
 download "${REPO_RAW}/theme/background.png" "$TMP/background.png"
 
-# Find the image referenced by the original theme and replace ONLY that image.
 THEME_FILE="$THEME_DIR/theme.txt"
 IMAGE_REF="$(sed -n 's/^[[:space:]]*desktop-image[[:space:]]*:[[:space:]]*"\([^"]*\)".*$/\1/p' "$THEME_FILE" | head -n1)"
 
@@ -88,8 +74,6 @@ else
     sed -i '1i desktop-image: "background.png"\n' "$THEME_FILE"
 fi
 
-# Remove ONLY the outer boot_menu frame style.
-# Individual Garuda menu-item and selected-item styles remain untouched.
 python3 - "$THEME_FILE" <<'PY'
 from pathlib import Path
 import re
@@ -98,6 +82,8 @@ import sys
 p = Path(sys.argv[1])
 s = p.read_text()
 
+# Remove only menu_pixmap_style from every boot_menu block. This keeps
+# the Garuda individual item and selected-item graphical styling intact.
 def find_blocks(text):
     result = []
     pos = 0
@@ -131,14 +117,12 @@ for start, end in reversed(find_blocks(s)):
 p.write_text(s)
 PY
 
-# Point GRUB at our cloned transparent theme.
 if grep -qE '^[[:space:]]*GRUB_THEME=' /etc/default/grub; then
-    sed -i "s|^[[:space:]]*GRUB_THEME=.*$|GRUB_THEME=\"${THEME_DIR}/theme.txt\"|" /etc/default/grub
+    sed -i 's|^[[:space:]]*GRUB_THEME=.*$|GRUB_THEME="/boot/grub/themes/garuda-transparent-menu/theme.txt"|' /etc/default/grub
 else
-    printf '\nGRUB_THEME="%s/theme.txt"\n' "$THEME_DIR" >> /etc/default/grub
+    printf '\nGRUB_THEME="/boot/grub/themes/garuda-transparent-menu/theme.txt"\n' >> /etc/default/grub
 fi
 
-# Avoid a separate GRUB_BACKGROUND overriding the theme background.
 sed -i 's|^[[:space:]]*GRUB_BACKGROUND=.*$|# GRUB_BACKGROUND managed by Garuda Transparent GRUB theme|' /etc/default/grub
 
 echo "Generating GRUB configuration..."
@@ -149,10 +133,8 @@ else
 fi
 
 echo
-echo "============================================================"
-echo " Garuda Transparent GRUB Theme installed successfully"
-echo "============================================================"
-echo "Theme : $THEME_DIR"
-echo "Backup: $BACKUP"
-echo
+echo "✓ Garuda Transparent GRUB Theme installed"
+echo "✓ Original Garuda buttons/layout preserved"
+echo "✓ Outer menu frame made transparent"
+echo "✓ Backup: $BACKUP"
 echo "Reboot to test."
