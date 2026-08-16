@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Support — Devil Boot Loader Theme</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#08070b;color:#eee;font-family:system-ui,-apple-system,sans-serif;display:grid;place-items:center;min-height:100vh;padding:24px}main{width:min(680px,100%);background:#111018;border:1px solid #3b2b45;border-radius:18px;padding:42px;text-align:center;box-shadow:0 20px 70px #0008}h1{margin:0 0 12px;font-size:2.3rem}p{color:#bdb7c5;line-height:1.6}.upi{font-size:2rem;font-weight:700;letter-spacing:2px;margin:28px 0;padding:20px;background:#191520;border:1px solid #5a3c68;border-radius:12px}.copy{border:0;border-radius:9px;padding:12px 22px;background:#ff718f;color:#160910;font-weight:700;cursor:pointer;font-size:1rem}.note{font-size:.88rem;color:#8f8996;margin-top:22px}a{color:#ff718f;text-decoration:none}
+</style>
+</head>
+<body>
+<main>
+<h1>Support Devil Boot Loader</h1>
+<p>If this project helped you, you can optionally support its development.</p>
+<div class="upi" id="upi">788888988</div>
+<button class="copy" onclick="copyUPI()">Copy UPI / Payment ID</button>
+<p class="note">Use the payment ID above in your UPI app. Please verify the recipient details shown by your UPI app before completing any payment.</p>
+<p><a href="./">← Back to project</a></p>
+</main>
+<script>function copyUPI(){navigator.clipboard.writeText(document.getElementById('upi').textContent).then(()=>{event.target.textContent='Copied';setTimeout(()=>event.target.textContent='Copy UPI / Payment ID',1500)})}</script>
+</body>
+</html>
