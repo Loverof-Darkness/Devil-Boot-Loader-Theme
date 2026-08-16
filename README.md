@@ -10,25 +10,52 @@ A clean Garuda Linux GRUB customization that keeps the original Garuda theme des
 - Uses the project's custom Devil background
 - Creates a backup before changing `/etc/default/grub`
 - Does **not** run `pacman -Syu`
+- Asks before overwriting an existing installation
 - Supports easy uninstall/restore
 
 ## One-command install
 
-### GitHub Pages
+GitHub Pages is deployed from the **`docs/` folder** on the `main` branch.
 
 ```bash
 curl -fsSL https://lover-of-darkness.github.io/Devil-Boot-Loader-Theme/install.sh | sudo bash
 ```
 
-### GitHub Raw
+Fallback using GitHub Raw:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Loverof-Darkness/Devil-Boot-Loader-Theme/main/install.sh | sudo bash
 ```
 
-Both commands install the same theme. GitHub Pages is the recommended command because it is shorter and easier to remember.
+The Pages installer is located at `docs/install.sh`. It fetches the background directly from the repository, so the background image does not need to be duplicated inside `docs/`.
 
-The installer automatically detects the installed Garuda GRUB theme, clones it, replaces the background, makes the outer menu transparent, and regenerates GRUB.
+If the theme is already installed, the installer asks:
+
+```text
+Do you want to reinstall/overwrite it? [y/N]:
+```
+
+Press `y` to reinstall or press Enter/`N` to cancel.
+
+## GitHub Pages setup
+
+In GitHub go to:
+
+**Settings → Pages → Build and deployment**
+
+Set:
+
+```text
+Source: Deploy from a branch
+Branch: main
+Folder: /docs
+```
+
+Then save. The Pages installer URL is:
+
+```text
+https://lover-of-darkness.github.io/Devil-Boot-Loader-Theme/install.sh
+```
 
 ## Uninstall
 
@@ -76,7 +103,7 @@ The installer detects the currently configured Garuda theme and clones it to:
 
 Then it:
 
-1. Downloads `theme/devil-background.png`.
+1. Downloads the custom background.
 2. Replaces only the theme's desktop background.
 3. Removes only `menu_pixmap_style` from the `boot_menu` block.
 4. Leaves `item_pixmap_style` and `selected_item_pixmap_style` unchanged.
