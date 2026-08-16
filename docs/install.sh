@@ -1,24 +1,38 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Devil Boot Loader Theme - GitHub Pages installer from /docs
-REPO_BASE="https://lover-of-darkness.github.io/Devil-Boot-Loader-Theme"
-RAW_BASE="https://raw.githubusercontent.com/Loverof-Darkness/Devil-Boot-Loader-Theme/main"
-THEME_DIR="/boot/grub/themes/garuda-transparent-menu"
+# Devil Boot Loader Theme - Universal GRUB installer
+# This copy is kept under /docs for optional GitHub Pages deployment.
+
+BRANCH="universal-grub"
+RAW_BASE="https://raw.githubusercontent.com/Loverof-Darkness/Devil-Boot-Loader-Theme/${BRANCH}"
+THEME_DIR=""
+GRUB_DIR=""
 STAMP="$(date +%Y%m%d-%H%M%S)"
-BACKUP="/var/backups/garuda-transparent-grub-${STAMP}"
+BACKUP="/var/backups/devil-boot-loader-${STAMP}"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
 if [[ $EUID -ne 0 ]]; then
     echo "Please run with sudo."
-    echo "curl -fsSL ${REPO_BASE}/install.sh | sudo bash"
+    echo "curl -fsSL ${RAW_BASE}/docs/install.sh | sudo bash"
     exit 1
 fi
 
-if [[ -d "$THEME_DIR" ]] || grep -qF 'GRUB_THEME="/boot/grub/themes/garuda-transparent-menu/theme.txt"' /etc/default/grub 2>/dev/null; then
+if [[ -d /boot/grub2 ]]; then
+    GRUB_DIR="/boot/grub2"
+elif [[ -d /boot/grub ]]; then
+    GRUB_DIR="/boot/grub"
+else
+    echo "ERROR: GRUB directory was not found under /boot/grub or /boot/grub2."
+    exit 1
+fi
+
+THEME_DIR="${GRUB_DIR}/themes/devil-transparent-grub"
+
+if [[ -d "$THEME_DIR" ]] || grep -qF "GRUB_THEME=\"${THEME_DIR}/theme.txt\"" /etc/default/grub 2>/dev/null; then
     echo
-    echo "Devil Boot Loader Theme is already installed."
+    echo "Devil Boot Loader Theme (Universal GRUB) is already installed."
     read -r -p "Do you want to reinstall/overwrite it? [y/N]: " answer
     case "$answer" in
         [yY]|[yY][eE][sS]) echo "Reinstalling..." ;;
@@ -38,38 +52,47 @@ download() {
     fi
 }
 
+if [[ ! -f /etc/default/grub ]]; then
+    echo "ERROR: /etc/default/grub was not found."
+    echo "This installer expects a standard GRUB configuration."
+    exit 1
+fi
+
 mkdir -p "$BACKUP"
 cp -a /etc/default/grub "$BACKUP/grub.default"
 
-CURRENT_THEME=""
-if grep -qE '^[[:space:]]*GRUB_THEME=' /etc/default/grub; then
-    CURRENT_THEME="$(sed -n 's/^[[:space:]]*GRUB_THEME[[:space:]]*=[[:space:]]*"\([^"]*\)".*$/\1/p' /etc/default/grub | head -n1)"
+CURRENT_THEME="$(sed -n 's/^[[:space:]]*GRUB_THEME[[:space:]]*=[[:space:]]*"\([^"]*\)".*$/\1/p' /etc/default/grub | head -n1)"
+
+if [[ -z "$CURRENT_THEME" || ! -f "$CURRENT_THEME" ]]; then
+    while IFS= read -r candidate; do
+        if [[ -f "$candidate" ]]; then
+            CURRENT_THEME="$candidate"
+            break
+        fi
+    done < <(
+        find \
+            /usr/share/grub/themes \
+            /usr/share/grub2/themes \
+            "${GRUB_DIR}/themes" \
+            -type f -name theme.txt 2>/dev/null | sort
+    )
 fi
 
 if [[ -z "$CURRENT_THEME" || ! -f "$CURRENT_THEME" ]]; then
-    for candidate in \
-        /usr/share/grub/themes/garuda-dr460nized/theme.txt \
-        /usr/share/grub/themes/garuda/theme.txt \
-        /boot/grub/themes/garuda-dr460nized/theme.txt \
-        /boot/grub/themes/garuda/theme.txt; do
-        if [[ -f "$candidate" ]]; then CURRENT_THEME="$candidate"; break; fi
-    done
-fi
-
-if [[ -z "$CURRENT_THEME" || ! -f "$CURRENT_THEME" ]]; then
-    echo "ERROR: Could not find an installed Garuda GRUB theme."
+    echo "ERROR: No existing GRUB theme was found."
+    echo "This universal installer preserves an installed theme rather than replacing it."
+    echo "Install/select a GRUB theme first, then rerun this installer."
     exit 1
 fi
 
 SOURCE_DIR="$(dirname "$CURRENT_THEME")"
-echo "Detected Garuda theme: $CURRENT_THEME"
+echo "Detected GRUB theme: $CURRENT_THEME"
+echo "GRUB directory: $GRUB_DIR"
 
 rm -rf "$THEME_DIR"
 mkdir -p "$THEME_DIR"
 cp -a "$SOURCE_DIR"/. "$THEME_DIR"/
 
-# Background is stored in the repository root theme directory and fetched
-# independently of GitHub Pages, so the Pages site only needs /docs files.
 download "${RAW_BASE}/theme/devil-background.png" "$TMP/devil-background.png"
 
 THEME_FILE="$THEME_DIR/theme.txt"
@@ -84,7 +107,9 @@ fi
 python3 - "$THEME_FILE" <<'PY'
 from pathlib import Path
 import re, sys
-p=Path(sys.argv[1]); s=p.read_text()
+p = Path(sys.argv[1])
+s = p.read_text()
+
 def find_blocks(text):
     result=[]; pos=0
     while True:
@@ -99,6 +124,7 @@ def find_blocks(text):
         if end is None: break
         result.append((start,end)); pos=end
     return result
+
 for start,end in reversed(find_blocks(s)):
     block=s[start:end]
     block=re.sub(r'(?m)^[ \t]*menu_pixmap_style[ \t]*=[^\n]*\n?','',block)
@@ -107,18 +133,29 @@ p.write_text(s)
 PY
 
 if grep -qE '^[[:space:]]*GRUB_THEME=' /etc/default/grub; then
-    sed -i 's|^[[:space:]]*GRUB_THEME=.*$|GRUB_THEME="/boot/grub/themes/garuda-transparent-menu/theme.txt"|' /etc/default/grub
+    sed -i "s|^[[:space:]]*GRUB_THEME=.*$|GRUB_THEME=\"${THEME_DIR}/theme.txt\"|" /etc/default/grub
 else
-    printf '\nGRUB_THEME="/boot/grub/themes/garuda-transparent-menu/theme.txt"\n' >> /etc/default/grub
+    printf '\nGRUB_THEME="%s/theme.txt"\n' "$THEME_DIR" >> /etc/default/grub
 fi
 sed -i 's|^[[:space:]]*GRUB_BACKGROUND=.*$|# GRUB_BACKGROUND managed by Devil Boot Loader Theme|' /etc/default/grub
 
 echo "Generating GRUB configuration..."
-if command -v update-grub >/dev/null 2>&1; then update-grub; else grub-mkconfig -o /boot/grub/grub.cfg; fi
+if command -v update-grub >/dev/null 2>&1; then
+    update-grub
+elif command -v grub2-mkconfig >/dev/null 2>&1; then
+    if [[ -d /boot/grub2 ]]; then grub2-mkconfig -o /boot/grub2/grub.cfg; else grub2-mkconfig -o /boot/grub/grub.cfg; fi
+elif command -v grub-mkconfig >/dev/null 2>&1; then
+    grub-mkconfig -o "${GRUB_DIR}/grub.cfg"
+else
+    echo "ERROR: update-grub, grub2-mkconfig, or grub-mkconfig was not found."
+    echo "Configuration was not regenerated. Backup: $BACKUP"
+    exit 1
+fi
 
 echo
-echo "✓ Devil Boot Loader Theme installed"
-echo "✓ Original Garuda buttons/layout preserved"
+echo "✓ Devil Boot Loader Theme installed (Universal GRUB)"
+echo "✓ Existing distro GRUB theme preserved"
 echo "✓ Outer menu frame made transparent"
+echo "✓ Devil background applied"
 echo "✓ Backup: $BACKUP"
 echo "Reboot to test."
