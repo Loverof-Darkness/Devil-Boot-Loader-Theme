@@ -37,18 +37,6 @@ Do you want to reinstall/overwrite it? [y/N]:
 
 Press `y` to reinstall or press Enter/`N` to cancel.
 
-## Support the project
-
-If you like the project and want to support its development, see:
-
-**[SUPPORT.md](SUPPORT.md)**
-
-The support page contains the project's UPI payment information, QR code and suggested support amounts.
-
-You can also open the web support page:
-
-**[Support Page](https://lover-of-darkness.github.io/Devil-Boot-Loader-Theme/support.html)**
-
 ## GitHub Pages setup
 
 In GitHub go to:
@@ -131,6 +119,64 @@ Before changing the configuration, a backup is created at:
 ```text
 /var/backups/garuda-transparent-grub-TIMESTAMP/
 ```
+
+---
+
+# Support the Project
+
+Thank you for using **Devil Boot Loader Theme**.
+
+If this project is useful to you and you would like to support its development, you can optionally contribute through UPI.
+
+## UPI Support
+
+### UPI / Payment ID
+
+```text
+788888988
+```
+
+You can copy the payment ID and enter it in your UPI application. **Always verify the recipient details displayed by your UPI app before completing a payment.**
+
+### Scan & Pay
+
+The project's QR code is stored directly in the repository:
+
+**[Open / Scan the UPI QR Code](docs/upi-qr.png)**
+
+The QR image contains the payment information. Verify the recipient details shown by your UPI app before paying.
+
+## Suggested Support Amounts
+
+| Amount | Support type |
+|---:|---|
+| ₹50 | Coffee Support |
+| ₹100 | Developer Support |
+| ₹250 | Project Support |
+| ₹500 | Strong Support |
+
+These are only suggestions. Any voluntary support is appreciated.
+
+## Where Your Support Helps
+
+Your support can help with:
+
+- GRUB theme development
+- Testing on different Garuda/Linux systems
+- New backgrounds and visual improvements
+- Documentation
+- Maintenance and bug fixes
+- Future improvements to the project
+
+## Payment Safety
+
+Please **verify the recipient name and payment details displayed by your UPI application before completing a transaction**. Do not rely only on the payment ID or QR image displayed in this repository.
+
+## Thank You
+
+Every contribution helps keep **Devil Boot Loader Theme** maintained and freely available.
+
+**Thank you for supporting the project.**
 
 ## License
 
