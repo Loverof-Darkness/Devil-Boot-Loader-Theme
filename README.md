@@ -1,27 +1,30 @@
-# Garuda Transparent GRUB Theme
+# Devil Boot Loader Theme
 
-A minimal customization for Garuda Linux:
+A clean Garuda Linux GRUB customization that keeps the original Garuda theme design while making the main menu frame transparent and allowing a custom background.
 
-- Keeps the installed Garuda theme's buttons, icons, fonts and menu layout.
-- Removes only the large outer `boot_menu` frame.
-- Keeps the individual menu-item and selected-item styling.
-- Uses a custom full-HD background.
-- Does not run a system update.
-- Creates a backup before changing `/etc/default/grub`.
+## What it does
 
-## One-command installation
+- Preserves Garuda's original buttons and selected-item styling
+- Preserves fonts, icons, menu layout and spacing
+- Removes only the large outer `boot_menu` frame
+- Uses the project's custom Devil background
+- Creates a backup before changing `/etc/default/grub`
+- Does **not** run `pacman -Syu`
+- Supports easy uninstall/restore
 
-After this repository is uploaded to GitHub, the installer can be run with:
+## One-command install
+
+Once GitHub Pages is enabled for this repository, install with:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/OWNER/REPO/main/install.sh | sudo bash
+curl -fsSL https://lover-of-darkness.github.io/Devil-Boot-Loader-Theme/install.sh | sudo bash
 ```
 
-The repository owner/name placeholder will be replaced in the final command after the GitHub repository URL is known.
+The installer automatically detects the installed Garuda GRUB theme, clones it, replaces the background, makes the outer menu transparent, and regenerates GRUB.
 
 ## Uninstall
 
-Clone/download the repository and run:
+Clone the repository or download `uninstall.sh`, then run:
 
 ```bash
 sudo ./uninstall.sh
@@ -29,41 +32,15 @@ sudo ./uninstall.sh
 
 The installer restores the latest backup it created.
 
-## Requirements
-
-- Garuda Linux / Arch-based Garuda installation
-- An installed Garuda GRUB theme
-- UEFI/GRUB setup
-- `curl` or `wget`
-- Python 3 (normally present on Garuda)
-
-## How it works
-
-The installer detects the currently configured Garuda GRUB theme, clones its complete theme directory to:
-
-```text
-/boot/grub/themes/garuda-transparent-menu/
-```
-
-It then:
-
-1. Replaces only the theme's desktop background.
-2. Removes only `menu_pixmap_style` from the `boot_menu` block.
-3. Leaves `item_pixmap_style` and `selected_item_pixmap_style` unchanged.
-4. Points `GRUB_THEME` to the cloned theme.
-5. Runs `update-grub`.
-
-The original theme in `/usr/share/grub/themes/` is not modified.
-
 ## Custom background
 
 Replace:
 
 ```text
-theme/background.png
+theme/devil-background.png
 ```
 
-with your own image.
+with your own image while keeping the exact filename.
 
 Recommended:
 
@@ -71,31 +48,42 @@ Recommended:
 1920x1080 PNG
 ```
 
-Keep the filename exactly:
+The next installation will automatically use the new image.
+
+## Requirements
+
+- Garuda Linux
+- Installed Garuda GRUB theme
+- UEFI/GRUB setup
+- `curl` or `wget`
+- Python 3
+
+## How it works
+
+The installer detects the currently configured Garuda theme and clones it to:
 
 ```text
-background.png
+/boot/grub/themes/garuda-transparent-menu/
 ```
 
-## No system upgrade
+Then it:
 
-The installer does NOT execute:
+1. Downloads `theme/devil-background.png`.
+2. Replaces only the theme's desktop background.
+3. Removes only `menu_pixmap_style` from the `boot_menu` block.
+4. Leaves `item_pixmap_style` and `selected_item_pixmap_style` unchanged.
+5. Points `GRUB_THEME` to the cloned theme.
+6. Runs `update-grub`.
 
-```text
-pacman -Syu
-```
+The original theme under `/usr/share/grub/themes/` is not modified.
 
-It only modifies the GRUB theme configuration and regenerates `grub.cfg`.
+## Backup
 
-## Safety
-
-Before changing the configuration, the installer creates:
+Before changing the configuration, a backup is created at:
 
 ```text
 /var/backups/garuda-transparent-grub-TIMESTAMP/
 ```
-
-with a copy of `/etc/default/grub`.
 
 ## License
 
