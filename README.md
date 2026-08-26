@@ -75,6 +75,16 @@ https://lover-of-darkness.github.io/Devil-Boot-Loader-Theme/install.sh
 
 The Pages installer is stored at `docs/install.sh`. It downloads the background from the repository's `main` branch, so the background does not need to be duplicated into `docs/`.
 
+## Preview locally
+
+The repository includes a safe QEMU preview script for checking the GRUB theme without rebooting the host.
+
+```bash
+bash preview-grub-accurate.sh
+```
+
+The preview uses a temporary EFI environment and does not modify the host bootloader or EFI variables.
+
 ## Uninstall
 
 Download/clone the repository and run:
