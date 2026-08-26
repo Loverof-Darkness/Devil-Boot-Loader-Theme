@@ -1,49 +1,57 @@
 # Devil Boot Loader Theme
 
-A clean Garuda Linux GRUB customization that keeps the original Garuda theme design while making the main menu frame transparent and allowing a custom background.
+A universal GRUB customization with a transparent main menu and Devil background. On Garuda Linux it preserves the installed Garuda theme's buttons, icons, fonts and layout; on other GRUB-based Linux systems it uses the project's standalone theme.
 
 ## What it does
 
-- Preserves Garuda's original buttons and selected-item styling
-- Preserves fonts, icons, menu layout and spacing
-- Removes only the large outer `boot_menu` frame
-- Uses the project's custom Devil background
+- Transparent main menu / outer frame
+- Custom Devil background
+- Preserves Garuda's original buttons, selected-item styling, fonts, icons and layout when a Garuda theme is installed
+- Provides a standalone fallback theme for non-Garuda GRUB systems
 - Creates a backup before changing `/etc/default/grub`
-- Does **not** run `pacman -Syu`
-- Asks before overwriting an existing installation
-- Supports easy uninstall/restore
+- Does **not** run `pacman -Syu` or perform a system upgrade
+- Asks before overwriting an existing Devil Boot Loader installation
+- Supports uninstall/restore
 
 ## One-command install
 
-GitHub Pages is deployed from the **`docs/` folder** on the `main` branch.
+### GitHub Pages — recommended
+
+GitHub Pages should be configured to deploy from the **`main` branch → `/docs` folder**.
 
 ```bash
 curl -fsSL https://lover-of-darkness.github.io/Devil-Boot-Loader-Theme/install.sh | sudo bash
 ```
 
-Fallback using GitHub Raw:
+### GitHub Raw — fallback
+
+If GitHub Pages is unavailable or still deploying, use:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Loverof-Darkness/Devil-Boot-Loader-Theme/main/install.sh | sudo bash
 ```
 
-The Pages installer is located at `docs/install.sh`. It fetches the background directly from the repository, so the background image does not need to be duplicated inside `docs/`.
+The installer automatically chooses the appropriate theme mode:
 
-If the theme is already installed, the installer asks:
+- **Garuda:** clones the installed Garuda theme and makes only the outer menu transparent.
+- **Other GRUB-based Linux:** installs the project's standalone Devil GRUB theme.
+
+If the Devil theme is already installed, the installer asks:
 
 ```text
+Devil Boot Loader Theme is already installed.
 Do you want to reinstall/overwrite it? [y/N]:
 ```
 
 Press `y` to reinstall or press Enter/`N` to cancel.
 
-## GitHub Pages setup
+## GitHub Pages deployment
 
-In GitHub go to:
+In GitHub open:
 
 **Settings → Pages → Build and deployment**
 
-Set:
+Set exactly:
 
 ```text
 Source: Deploy from a branch
@@ -51,15 +59,17 @@ Branch: main
 Folder: /docs
 ```
 
-Then save. The Pages installer URL is:
+Save the settings and wait for the Pages deployment to complete. The public installer URL is:
 
 ```text
 https://lover-of-darkness.github.io/Devil-Boot-Loader-Theme/install.sh
 ```
 
+The Pages installer is stored at `docs/install.sh`. It downloads the background from the repository's `main` branch, so the background does not need to be duplicated into `docs/`.
+
 ## Uninstall
 
-Clone the repository or download `uninstall.sh`, then run:
+Download/clone the repository and run:
 
 ```bash
 sudo ./uninstall.sh
@@ -83,34 +93,39 @@ Recommended:
 1920x1080 PNG
 ```
 
-The next installation will automatically use the new image.
+Both installers fetch the current background automatically.
 
 ## Requirements
 
-- Garuda Linux
-- Installed Garuda GRUB theme
-- UEFI/GRUB setup
+- A GRUB-based Linux installation
 - `curl` or `wget`
-- Python 3
+- Python 3 for theme processing
+- `sudo` privileges
+
+For Garuda-specific styling, an installed Garuda GRUB theme is required. Other systems use the standalone fallback theme.
 
 ## How it works
 
-The installer detects the currently configured Garuda theme and clones it to:
+The installer first checks whether the Devil theme is already installed. It then backs up `/etc/default/grub`.
+
+On Garuda, it detects the installed Garuda theme and clones it to:
 
 ```text
 /boot/grub/themes/garuda-transparent-menu/
 ```
 
-Then it:
+It then:
 
 1. Downloads the custom background.
 2. Replaces only the theme's desktop background.
 3. Removes only `menu_pixmap_style` from the `boot_menu` block.
 4. Leaves `item_pixmap_style` and `selected_item_pixmap_style` unchanged.
 5. Points `GRUB_THEME` to the cloned theme.
-6. Runs `update-grub`.
+6. Regenerates `grub.cfg`.
 
-The original theme under `/usr/share/grub/themes/` is not modified.
+On non-Garuda systems, the installer uses a standalone theme instead of requiring Garuda assets.
+
+The original Garuda theme under `/usr/share/grub/themes/` is not modified.
 
 ## Backup
 
@@ -162,7 +177,7 @@ These are only suggestions. Any voluntary support is appreciated.
 Your support can help with:
 
 - GRUB theme development
-- Testing on different Garuda/Linux systems
+- Testing on different Linux systems
 - New backgrounds and visual improvements
 - Documentation
 - Maintenance and bug fixes
