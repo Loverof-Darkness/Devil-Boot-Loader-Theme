@@ -4,11 +4,13 @@ A universal GRUB customization with a transparent main menu and Devil background
 
 ## What it looks like
 
-The current QEMU boot preview shows the intended boot-time appearance:
+The preview below shows the intended boot-time layout with the Devil background, transparent menu, typical Linux/Windows entries, and GRUB controls:
 
-![Devil Boot Loader Theme preview](docs/boot-preview.jpg)
+![Devil Boot Loader Theme GRUB preview](docs/boot-preview.svg)
 
-> Preview generated from the installed GRUB theme. The exact rendering can vary slightly with firmware, resolution, and GRUB video mode.
+[Open the full GRUB preview](docs/boot-preview.svg)
+
+> The preview is a visual representation of the boot screen. Exact rendering can vary slightly with firmware, resolution, installed menu entries, and GRUB video mode.
 
 ## What it does
 
