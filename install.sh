@@ -2,24 +2,24 @@
 set -euo pipefail
 
 # Devil Boot Loader Theme - universal GRUB installer
-# Works with Garuda's existing theme when available and falls back to a
-# self-contained transparent GRUB theme on Ubuntu/Debian/other distros.
+# Supports Garuda/Arch-derived Garuda themes when present, and creates a
+# standalone universal GRUB theme on Ubuntu/Debian/other GRUB systems.
 
-REPO_RAW="https://raw.githubusercontent.com/Loverof-Darkness/Devil-Boot-Loader-Theme/main"
+REPO_BASE="https://raw.githubusercontent.com/Loverof-Darkness/Devil-Boot-Loader-Theme/main"
 THEME_DIR="/boot/grub/themes/devil-boot-loader"
+THEME_FILE="$THEME_DIR/theme.txt"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 BACKUP="/var/backups/devil-boot-loader-${STAMP}"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
 if [[ $EUID -ne 0 ]]; then
-    echo "Please run with sudo."
-    echo "curl -fsSL ${REPO_RAW}/install.sh | sudo bash"
+    echo "Please run with sudo:"
+    echo "curl -fsSL ${REPO_BASE}/install.sh | sudo bash"
     exit 1
 fi
 
-# Ask before overwriting our existing installation.
-if [[ -d "$THEME_DIR" ]] || grep -qF 'GRUB_THEME="/boot/grub/themes/devil-boot-loader/theme.txt"' /etc/default/grub 2>/dev/null || grep -qF 'GRUB_THEME="/boot/grub/themes/garuda-transparent-menu/theme.txt"' /etc/default/grub 2>/dev/null; then
+if [[ -d "$THEME_DIR" ]] || grep -qF 'GRUB_THEME="/boot/grub/themes/devil-boot-loader/theme.txt"' /etc/default/grub 2>/dev/null; then
     echo
     echo "Devil Boot Loader Theme is already installed."
     read -r -p "Do you want to reinstall/overwrite it? [y/N]: " answer
@@ -44,10 +44,12 @@ download() {
 mkdir -p "$BACKUP"
 cp -a /etc/default/grub "$BACKUP/grub.default"
 
-download "${REPO_RAW}/theme/devil-background.png" "$TMP/devil-background.png"
+# Download the project's background.
+download "${REPO_BASE}/theme/devil-background.png" "$TMP/devil-background.png"
 
-# Find a real Garuda theme first. If none exists (Ubuntu/Debian/etc.),
-# create our own self-contained theme instead of failing.
+# Prefer the installed Garuda theme when available so Garuda users keep their
+# original buttons, icons, fonts and layout. Everyone else gets the universal
+# standalone theme below.
 CURRENT_THEME=""
 if grep -qE '^[[:space:]]*GRUB_THEME=' /etc/default/grub; then
     CURRENT_THEME="$(sed -n 's/^[[:space:]]*GRUB_THEME[[:space:]]*=[[:space:]]*"\([^"]*\)".*$/\1/p' /etc/default/grub | head -n1)"
@@ -68,28 +70,26 @@ mkdir -p "$THEME_DIR"
 
 if [[ -n "$CURRENT_THEME" && -f "$CURRENT_THEME" ]]; then
     echo "Detected Garuda theme: $CURRENT_THEME"
-    echo "Preserving the Garuda theme's buttons, icons, fonts and layout."
     SOURCE_DIR="$(dirname "$CURRENT_THEME")"
     cp -a "$SOURCE_DIR"/. "$THEME_DIR"/
 
-    THEME_FILE="$THEME_DIR/theme.txt"
-    IMAGE_REF="$(sed -n 's/^[[:space:]]*desktop-image[[:space:]]*:[[:space:]]*"\([^" ]*\)".*$/\1/p' "$THEME_FILE" | head -n1)"
-    if [[ -n "$IMAGE_REF" ]]; then
-        cp -f "$TMP/devil-background.png" "$THEME_DIR/$(basename "$IMAGE_REF")"
+    ORIGINAL_IMAGE="$(sed -n 's/^[[:space:]]*desktop-image[[:space:]]*:[[:space:]]*"\([^"]*\)".*$/\1/p' "$THEME_FILE" | head -n1)"
+    if [[ -n "$ORIGINAL_IMAGE" ]]; then
+        cp -f "$TMP/devil-background.png" "$THEME_DIR/$(basename "$ORIGINAL_IMAGE")"
     else
         cp -f "$TMP/devil-background.png" "$THEME_DIR/devil-background.png"
         sed -i '1i desktop-image: "devil-background.png"\n' "$THEME_FILE"
     fi
 
-    # Remove only the outer menu frame; keep Garuda item/selection styling.
+    # Remove only the outer boot_menu frame. Garuda item/selection styles stay.
     python3 - "$THEME_FILE" <<'PY'
 from pathlib import Path
 import re, sys
 p=Path(sys.argv[1]); s=p.read_text()
-def find_blocks(text):
-    result=[]; pos=0
+def blocks(text):
+    out=[]; pos=0
     while True:
-        m=re.search(r'(?m)^\s*\+\s*boot_menu\s*\{', text[pos:])
+        m=re.search(r'(?m)^\s*\+\s*boot_menu\s*\{',text[pos:])
         if not m: break
         start=pos+m.start(); brace=text.find('{',start); depth=0; end=None
         for i in range(brace,len(text)):
@@ -98,94 +98,87 @@ def find_blocks(text):
                 depth-=1
                 if depth==0: end=i+1; break
         if end is None: break
-        result.append((start,end)); pos=end
-    return result
-for start,end in reversed(find_blocks(s)):
-    block=s[start:end]
-    block=re.sub(r'(?m)^[ \t]*menu_pixmap_style[ \t]*=[^\n]*\n?','',block)
-    s=s[:start]+block+s[end:]
+        out.append((start,end)); pos=end
+    return out
+for start,end in reversed(blocks(s)):
+    b=s[start:end]
+    b=re.sub(r'(?m)^[ \t]*menu_pixmap_style[ \t]*=[^\n]*\n?','',b)
+    s=s[:start]+b+s[end:]
 p.write_text(s)
 PY
 else
-    echo "No Garuda GRUB theme found; installing the universal Devil theme."
-
-    # Ubuntu/Debian fallback. Use an installed GRUB font if available.
-    FONT=""
-    for f in /usr/share/grub/themes/*/*.pf2 /usr/share/grub/*.pf2; do
-        if [[ -f "$f" ]]; then FONT="$f"; break; fi
-    done
-
-    if [[ -z "$FONT" ]]; then
-        echo "ERROR: No GRUB .pf2 font found. Is grub installed?"
-        exit 1
-    fi
-
-    FONT_NAME="$(basename "$FONT")"
-    cp -f "$FONT" "$THEME_DIR/$FONT_NAME"
+    echo "No Garuda theme found; installing universal GRUB theme."
     cp -f "$TMP/devil-background.png" "$THEME_DIR/devil-background.png"
 
-    # Transparent menu, simple centered title and clean selectable entries.
-    # No external theme assets are required.
-    cat > "$THEME_DIR/theme.txt" <<EOF
+    # Standalone theme: transparent outer menu, simple readable entries.
+    cat > "$THEME_FILE" <<'THEME'
 # Devil Boot Loader Theme - universal fallback
-# Transparent main menu with custom background.
+# Compatible with GRUB's gfxterm theme renderer.
 
 desktop-image: "devil-background.png"
 
-+ label {
-    top = 12%
-    left = 50%
-    width = 50%
-    align = "center"
-    text = "DEVIL BOOT LOADER"
-    font = "$FONT_NAME"
-    color = "ffffff"
-}
-
+# Transparent menu: no menu_pixmap_style is specified.
 + boot_menu {
-    left = 22%
-    top = 32%
-    width = 56%
-    height = 48%
-    item_font = "$FONT_NAME"
-    item_color = "ffffff"
-    selected_item_color = "ff718f"
-    item_height = 36
+    left = 15%
+    width = 70%
+    top = 52%
+    height = 38%
+    item_height = 42
     item_padding = 8
-    selected_item_pixmap_style = ""
+    item_icon_space = 12
+    item_spacing = 6
+    selected_item_color = "#ffffff"
+    item_color = "#d0d0d0"
+    font = "DejaVu Sans 18"
 }
-EOF
+THEME
 fi
 
-# Point GRUB to the generated theme.
+# Ensure GRUB uses the theme.
 if grep -qE '^[[:space:]]*GRUB_THEME=' /etc/default/grub; then
     sed -i 's|^[[:space:]]*GRUB_THEME=.*$|GRUB_THEME="/boot/grub/themes/devil-boot-loader/theme.txt"|' /etc/default/grub
 else
     printf '\nGRUB_THEME="/boot/grub/themes/devil-boot-loader/theme.txt"\n' >> /etc/default/grub
 fi
 
+# GRUB themes require gfxterm; force a graphics mode without requiring a
+# particular resolution supported by the machine.
+if grep -qE '^[[:space:]]*GRUB_TERMINAL=' /etc/default/grub; then
+    sed -i 's|^[[:space:]]*GRUB_TERMINAL=.*$|GRUB_TERMINAL="gfxterm"|' /etc/default/grub
+else
+    printf 'GRUB_TERMINAL="gfxterm"\n' >> /etc/default/grub
+fi
+
+if grep -qE '^[[:space:]]*GRUB_GFXMODE=' /etc/default/grub; then
+    sed -i 's|^[[:space:]]*GRUB_GFXMODE=.*$|GRUB_GFXMODE="auto"|' /etc/default/grub
+else
+    printf 'GRUB_GFXMODE="auto"\n' >> /etc/default/grub
+fi
+
+# Theme supplies its own background.
 sed -i 's|^[[:space:]]*GRUB_BACKGROUND=.*$|# GRUB_BACKGROUND managed by Devil Boot Loader Theme|' /etc/default/grub
 
-echo "Generating GRUB configuration..."
+# Regenerate the actual boot configuration.
 if command -v update-grub >/dev/null 2>&1; then
     update-grub
 elif command -v grub-mkconfig >/dev/null 2>&1; then
     grub-mkconfig -o /boot/grub/grub.cfg
 else
-    echo "ERROR: grub-mkconfig/update-grub not found. Install GRUB first."
+    echo "ERROR: grub-mkconfig/update-grub not found."
+    exit 1
+fi
+
+# Verify that the generated config references our theme.
+if ! grep -qF '/boot/grub/themes/devil-boot-loader/theme.txt' /boot/grub/grub.cfg; then
+    echo
+    echo "WARNING: grub.cfg was generated but does not reference the theme."
+    echo "Your distribution may require an additional GRUB theme configuration."
     exit 1
 fi
 
 echo
-echo "============================================================"
 echo "✓ Devil Boot Loader Theme installed"
-echo "✓ Transparent main menu"
-echo "✓ Custom Devil background"
-if [[ -n "$CURRENT_THEME" && -f "$CURRENT_THEME" ]]; then
-    echo "✓ Existing Garuda theme styling preserved"
-else
-    echo "✓ Universal GRUB fallback theme used"
-fi
+echo "✓ Theme: $THEME_FILE"
 echo "✓ Backup: $BACKUP"
-echo "============================================================"
+echo "✓ GRUB graphics mode: gfxterm / auto"
 echo "Reboot to test."
