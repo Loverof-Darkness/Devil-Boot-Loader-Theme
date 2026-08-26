@@ -2,6 +2,14 @@
 
 A universal GRUB customization with a transparent main menu and Devil background. On Garuda Linux it preserves the installed Garuda theme's buttons, icons, fonts and layout; on other GRUB-based Linux systems it uses the project's standalone theme.
 
+## What it looks like
+
+The current QEMU boot preview shows the intended boot-time appearance:
+
+![Devil Boot Loader Theme preview](docs/boot-preview.jpg)
+
+> Preview generated from the installed GRUB theme. The exact rendering can vary slightly with firmware, resolution, and GRUB video mode.
+
 ## What it does
 
 - Transparent main menu / outer frame
