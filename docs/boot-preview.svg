@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <title>Devil Boot Loader Theme - GRUB Preview</title>
+  <desc>Preview of the Devil Boot Loader Theme with transparent menu and typical boot options.</desc>
+  <defs>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#000000" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0.38"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="blur"/>
+      <feOffset dy="4" result="off"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.45"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <image x="0" y="0" width="1920" height="1080" preserveAspectRatio="xMidYMid slice"
+    href="https://raw.githubusercontent.com/Loverof-Darkness/Devil-Boot-Loader-Theme/main/theme/devil-background.png"/>
+  <rect x="0" y="0" width="1920" height="1080" fill="url(#fade)"/>
+
+  <!-- Transparent GRUB-style menu area -->
+  <g font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="26" filter="url(#shadow)">
+    <rect x="305" y="235" width="890" height="68" rx="3" fill="#210b12" fill-opacity="0.62" stroke="#ff3b28" stroke-opacity="0.12"/>
+    <text x="345" y="280" fill="#20d7ff">Devil Boot Loader Theme</text>
+
+    <text x="345" y="352" fill="#f2eeee">Garuda Linux</text>
+    <text x="345" y="414" fill="#f2eeee">Windows Boot Manager</text>
+    <text x="345" y="476" fill="#f2eeee">Advanced Options for Garuda Linux</text>
+    <text x="345" y="538" fill="#f2eeee">Memory Tester (memtest86+)</text>
+    <text x="345" y="600" fill="#f2eeee">Shutdown</text>
+  </g>
+
+  <!-- GRUB help footer -->
+  <g text-anchor="middle" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="22">
+    <text x="960" y="900" fill="#ffffff">[↑] [↓]  Navigation</text>
+    <text x="960" y="932" fill="#ffffff">[Enter]  Boot selected OS</text>
+    <text x="960" y="964" fill="#ffffff">[E]  Edit Selection</text>
+    <text x="960" y="996" fill="#ffffff">[C]  GRUB Commandline</text>
+  </g>
+</svg>
